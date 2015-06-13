@@ -328,9 +328,9 @@
         } ).on ( "canplay", function () {
             $ ( this ).removeAttr ( "poster" );
             SELF.update ( true );
-        } ).on("progress", function(){
-            SELF.update(true);
-        });
+        } ).on ( "progress", function () {
+            SELF.update ( true );
+        } );
 
         SELF.html.fullscreen.on ( "click", function () {
             SELF.fullscreen ();
@@ -545,7 +545,7 @@
 
     Fancy.player     = VERSION;
     Fancy.api.player = function ( settings ) {
-        return this.set ( function ( el ) {
+        return this.set ( NAME, function ( el ) {
             return new FancyPlayer ( el, settings );
         } );
     };
