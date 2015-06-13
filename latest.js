@@ -2,7 +2,7 @@
 
     Fancy.require ( {
         jQuery: false,
-        Fancy : "1.0.0"
+        Fancy : "1.0.1"
     } );
     function preventSelect ( el ) {
         return el.on ( "selectstart", false ).attr ( 'unselectable', "on" ).css ( "userSelect", "none" );
@@ -27,7 +27,7 @@
 
     var i       = 1,
         NAME    = "FancyPlayer",
-        VERSION = "1.0.0",
+        VERSION = "1.0.1",
         logged  = false;
 
     function setSelector ( el, type ) {
@@ -328,7 +328,9 @@
         } ).on ( "canplay", function () {
             $ ( this ).removeAttr ( "poster" );
             SELF.update ( true );
-        } );
+        } ).on("progress", function(){
+            SELF.update(true);
+        });
 
         SELF.html.fullscreen.on ( "click", function () {
             SELF.fullscreen ();
@@ -543,6 +545,8 @@
 
     Fancy.player     = VERSION;
     Fancy.api.player = function ( settings ) {
-        return this.set ( FancyPlayer, settings );
+        return this.set ( function ( el ) {
+            return new FancyPlayer ( el, settings );
+        } );
     };
 }) ( window, jQuery );
