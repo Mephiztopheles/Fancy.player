@@ -149,7 +149,42 @@
         preventSelect ( SELF.html.wrapper );
         element.data ( NAME, SELF );
         SELF.element.load ();
-        var observer  = new MutationObserver ( function ( mutation ) {
+
+
+        var r = new XMLHttpRequest();
+        r.onload = function() {
+            SELF.element.src = URL.createObjectURL(r.response);
+            SELF.element.play();
+        };
+        if (SELF.element.canPlayType('video/mp4;codecs="avc1.42E01E, mp4a.40.2"')) {
+            r.open("GET", SELF.element.src);
+        }
+        else {
+            r.open("GET", SELF.element.src);
+        }
+
+        r.responseType = "blob";
+        r.send();
+
+
+        /*var cpy                   = element.clone ();
+        element.after ( cpy.hide () );
+        cpy[ 0 ].oncanplaythrough = function () {
+
+            SELF.element.currentTime++;
+            SELF.element.currentTime = SELF.settings.start;
+            var interval             = setInterval ( function () {
+                try {
+                    cpy[ 0 ].currentTime = cpy[ 0 ].buffered.end ( 0 );
+                    if ( cpy[ 0 ].currentTime === cpy[ 0 ].duration ) {
+                        cpy.remove ();
+                        clearInterval ( interval );
+                    }
+                } catch ( e ) {}
+            }, 500 );
+        };*/
+
+        var observer = new MutationObserver ( function ( mutation ) {
             for ( var i = 0; i < mutation.length; i++ ) {
                 var mut = mutation [ i ];
                 if ( mut.type = "attributes" && mut.attributeName == "src" ) {
@@ -158,9 +193,10 @@
             }
 
         } );
-        observer.observe ( element.find ( "source" ) [ 0 ], {
+        observer.observe ( element.find ( "source" ) [ 0 ] || this.element, {
             attributes: true
         } );
+
 
         return SELF;
     }
@@ -202,10 +238,17 @@
         SELF.duration    = SELF.element.duration || 0;
         if ( instant ) {
             SELF.html.timeSliderCurrent.stop ( true ).width ( ( ( SELF.currentTime - SELF.settings.start ) / SELF.duration * 100 ) + "%" );
-            SELF.html.timeSliderBuffer.stop ( true ).width ( ( ( SELF.element.buffered.end ( 0 ) - SELF.settings.start ) / SELF.duration * 100 ) + "%" );
+            try {
+                SELF.html.timeSliderBuffer.stop ( true ).width ( ( ( SELF.element.buffered.end ( 0 ) - SELF.settings.start ) / SELF.duration * 100 ) + "%" );
+            } catch ( e ) { }
         } else if ( SELF.element.readyState == 4 ) {
-            SELF.buffered = [ SELF.element.buffered.start ( 0 ), SELF.element.buffered.end ( 0 ) ];
-            SELF.played   = [ SELF.settings.start, SELF.element.currentTime ];
+
+            try {
+                SELF.buffered = [ SELF.element.buffered.start ( 0 ), SELF.element.buffered.end ( 0 ) ];
+            } catch ( e ) {
+                SELF.buffered = [ 0, 0 ];
+            }
+            SELF.played = [ SELF.settings.start, SELF.element.currentTime ];
             SELF.html.timeSliderCurrent.animate ( {
                 width: ( ( SELF.currentTime + 1 - SELF.settings.start ) / SELF.duration * 100 ) + "%"
             }, 1000, "linear" );
@@ -495,7 +538,7 @@
         return this;
     };
     FancyPlayer.api.reset         = function () {
-        this.element.load ();
+
         this.seek ( this.settings.start );
         this.html.timeSliderCurrent.width ( 0 );
         return this;
