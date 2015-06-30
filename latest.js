@@ -1,8 +1,8 @@
 (function ( window, $ ) {
 
     Fancy.require ( {
-        jQuery: false,
-        Fancy : "1.0.1"
+        jQuery       : false,
+        Fancy        : "1.0.2"
     } );
     function preventSelect ( el ) {
         return el.on ( "selectstart", false ).attr ( 'unselectable', "on" ).css ( "userSelect", "none" );
@@ -27,7 +27,7 @@
 
     var i       = 1,
         NAME    = "FancyPlayer",
-        VERSION = "1.0.1",
+        VERSION = "1.0.2",
         logged  = false;
 
     function setSelector ( el, type ) {
@@ -427,13 +427,13 @@
         }
 
         if ( Fancy.swipe ) {
-            var sw = Fancy ( SELF.html.volumeSliderFull ).swipe ( {
+            Fancy ( SELF.html.volumeSliderFull ).swipe ( {
                 onMouseMove: function ( e ) {
                     console.log ( "moved" );
                     calcVolume ( e );
                 }
             } );
-console.log(sw);
+
             Fancy ( SELF.html.timeSlider ).swipe ( {
                 onMouseMove: function ( e ) {
                     var m = 100 * ( e.pageX - SELF.html.timeSliderFull.offset ().left ) / SELF.html.timeSliderFull.width ();
