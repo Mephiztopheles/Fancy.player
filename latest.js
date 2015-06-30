@@ -426,6 +426,7 @@
 
         }
 
+        console.log ( Fancy.swipe );
         if ( Fancy.swipe ) {
             Fancy ( SELF.html.volumeSliderFull ).swipe ( {
                 onMouseMove: function ( e ) {
@@ -571,7 +572,7 @@
         clearInterval ( this.timer [ "played" ] );
         $ ( document ).off ( "." + NAME + "-" + this.id );
         this.element.off ( "." + NAME );
-        this.element.parent().children().not(this.element).remove();
+        this.element.parent ().children ().not ( this.element ).remove ();
         this.element.unwrap ();
     };
 
