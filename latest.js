@@ -151,38 +151,33 @@
         SELF.element.load ();
 
 
-        var r = new XMLHttpRequest();
-        r.onload = function() {
-            SELF.element.src = URL.createObjectURL(r.response);
-            SELF.element.play();
+        var r    = new XMLHttpRequest ();
+        r.onload = function () {
+            SELF.element.src = URL.createObjectURL ( r.response );
+            SELF.element.play ();
         };
-        if (SELF.element.canPlayType('video/mp4;codecs="avc1.42E01E, mp4a.40.2"')) {
-            r.open("GET", SELF.element.src);
-        }
-        else {
-            r.open("GET", SELF.element.src);
-        }
+        r.open ( "GET", SELF.element.src );
 
         r.responseType = "blob";
-        r.send();
+        r.send ();
 
 
         /*var cpy                   = element.clone ();
-        element.after ( cpy.hide () );
-        cpy[ 0 ].oncanplaythrough = function () {
+         element.after ( cpy.hide () );
+         cpy[ 0 ].oncanplaythrough = function () {
 
-            SELF.element.currentTime++;
-            SELF.element.currentTime = SELF.settings.start;
-            var interval             = setInterval ( function () {
-                try {
-                    cpy[ 0 ].currentTime = cpy[ 0 ].buffered.end ( 0 );
-                    if ( cpy[ 0 ].currentTime === cpy[ 0 ].duration ) {
-                        cpy.remove ();
-                        clearInterval ( interval );
-                    }
-                } catch ( e ) {}
-            }, 500 );
-        };*/
+         SELF.element.currentTime++;
+         SELF.element.currentTime = SELF.settings.start;
+         var interval             = setInterval ( function () {
+         try {
+         cpy[ 0 ].currentTime = cpy[ 0 ].buffered.end ( 0 );
+         if ( cpy[ 0 ].currentTime === cpy[ 0 ].duration ) {
+         cpy.remove ();
+         clearInterval ( interval );
+         }
+         } catch ( e ) {}
+         }, 500 );
+         };*/
 
         var observer = new MutationObserver ( function ( mutation ) {
             for ( var i = 0; i < mutation.length; i++ ) {
@@ -193,7 +188,7 @@
             }
 
         } );
-        observer.observe ( element.find ( "source" ) [ 0 ] || this.element, {
+        observer.observe ( element.find ( "source" ).length ? element.find ( "source" ) [ 0 ] : this.element, {
             attributes: true
         } );
 
@@ -276,7 +271,7 @@
             SELF.toggle ();
         } );
 
-        $ ( SELF.element ).on ( "ended", function () {
+        $ ( SELF.element ).on ( "ended." + NAME, function () {
             removeClass ( SELF.html.wrapper, "played", "paused" );
             addClass ( SELF.html.wrapper, "ended" );
             SELF.update ( true );
@@ -288,9 +283,8 @@
             };
             globalEvent ( e );
             SELF.onEnd ();
-        } ).on ( "pause", function () {
+        } ).on ( "pause." + NAME, function () {
             SELF.update ( true );
-            clearInterval ( SELF.timer [ "played" ] );
 
             addClass ( SELF.html.wrapper, "paused" );
             removeClass ( SELF.html.wrapper, "played", "ended" );
@@ -304,7 +298,7 @@
             SELF.html.timeSliderCurrent.stop ( true );
             SELF.html.timeSliderBuffer.stop ( true );
             SELF.onPause ();
-        } ).on ( "play", function () {
+        } ).on ( "play." + NAME, function () {
             addClass ( SELF.html.wrapper, "played" );
             removeClass ( SELF.html.wrapper, "paused", "ended" );
             var e                   = {
@@ -319,7 +313,7 @@
                 SELF.update ();
             }, 1000 );
             SELF.onPlay ();
-        } ).on ( "volumechange", function () {
+        } ).on ( "volumechange." + NAME, function () {
             SELF.volume = 100 * SELF.element.volume;
             function set ( vol ) {
                 if ( SELF.html.volumeSliderFull.height () > SELF.html.volumeSliderFull.width () )
@@ -348,7 +342,7 @@
             };
             globalEvent ( e );
             SELF.onVolume ();
-        } ).on ( "contextmenu", function ( e ) {
+        } ).on ( "contextmenu." + NAME, function ( e ) {
             e.preventDefault ();
             return false;
         } ).on ( "click", function () {
@@ -361,17 +355,17 @@
             } else {
                 SELF.toggle ();
             }
-        } ).on ( "dblclick", function () {
+        } ).on ( "dblclick." + NAME, function () {
             SELF.fullscreen ();
         } ).on ( "waiting", function () {
         } ).on ( "loadstart", function () {
             if ( SELF.settings.poster ) {
                 $ ( this ).attr ( "poster", SELF.settings.poster );
             }
-        } ).on ( "canplay", function () {
+        } ).on ( "canplay." + NAME, function () {
             $ ( this ).removeAttr ( "poster" );
             SELF.update ( true );
-        } ).on ( "progress", function () {
+        } ).on ( "progress." + NAME, function () {
             SELF.update ( true );
         } );
 
@@ -435,6 +429,7 @@
         if ( Fancy.swipe ) {
             Fancy ( SELF.html.volumeSliderFull ).swipe ( {
                 onMouseMove: function ( e ) {
+                    console.log ( "moved" );
                     calcVolume ( e );
                 }
 
@@ -483,7 +478,7 @@
             SELF.html.timePopout.fadeOut ();
         } );
 
-        $ ( document ).on ( "webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange", function () {
+        $ ( document ).on ( "webkitfullscreenchange." + NAME + "-" + SELF.id + " mozfullscreenchange." + NAME + "-" + SELF.id + " fullscreenchange." + NAME + "-" + SELF.id + " MSFullscreenChange." + NAME + "-" + SELF.id, function () {
             if ( !document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement ) {
                 removeClass ( SELF.html.wrapper, "fullscreen" );
             } else {
@@ -533,8 +528,6 @@
             this.element.muted  = false;
             this.element.volume = value / 100;
         }
-        console.log ( value );
-        console.trace ();
         return this;
     };
     FancyPlayer.api.reset         = function () {
@@ -573,6 +566,13 @@
     };
     FancyPlayer.api.getTime       = function ( e ) {
         return calcTime ( this.calcTime ( e ) );
+    };
+    FancyPlayer.api.destroy       = function () {
+        clearInterval ( this.timer [ "played" ] );
+        $ ( document ).off ( "." + NAME + "-" + this.id );
+        this.element.off ( "." + NAME );
+        this.element.parent().children().not(this.element).remove();
+        this.element.unwrap ();
     };
 
     Fancy.settings [ NAME ] = {
