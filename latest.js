@@ -426,16 +426,14 @@
 
         }
 
-        console.log ( Fancy.swipe );
         if ( Fancy.swipe ) {
-            Fancy ( SELF.html.volumeSliderFull ).swipe ( {
+            var sw = Fancy ( SELF.html.volumeSliderFull ).swipe ( {
                 onMouseMove: function ( e ) {
                     console.log ( "moved" );
                     calcVolume ( e );
                 }
-
             } );
-
+console.log(sw);
             Fancy ( SELF.html.timeSlider ).swipe ( {
                 onMouseMove: function ( e ) {
                     var m = 100 * ( e.pageX - SELF.html.timeSliderFull.offset ().left ) / SELF.html.timeSliderFull.width ();
