@@ -27,7 +27,7 @@
 
     var i       = 1,
         NAME    = "FancyPlayer",
-        VERSION = "1.0.2",
+        VERSION = "1.0.3",
         logged  = false;
 
     function setSelector ( el, type ) {
@@ -150,17 +150,19 @@
         element.data ( NAME, SELF );
         SELF.element.load ();
 
-
-        var r    = new XMLHttpRequest ();
-        r.onload = function () {
-            SELF.element.src = URL.createObjectURL ( r.response );
-            SELF.element.play ();
-        };
-        r.open ( "GET", SELF.element.src );
-
-        r.responseType = "blob";
-        r.send ();
-
+        if( SELF.settings.preload ) {
+            
+            var r    = new XMLHttpRequest ();
+            r.onload = function () {
+                SELF.element.src = URL.createObjectURL ( r.response );
+                SELF.element.play ();
+            };
+            r.open ( "GET", SELF.element.src );
+    
+            r.responseType = "blob";
+            r.send ();
+            
+        }
 
         /*var cpy                   = element.clone ();
          element.after ( cpy.hide () );
@@ -582,7 +584,8 @@
         loopable           : false,
         hideControlsDesktop: 1500,
         hideControlsMobile : false,
-        poster             : false
+        poster             : false,
+        preload            : false
     };
 
     Fancy.player     = VERSION;
