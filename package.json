@@ -1,0 +1,41 @@
+{
+  "name": "fancy-player",
+  "title": "FancyPlayer",
+  "description": "JavaScript HTML5-video-player for Fancy",
+  "version": "1.0.3",
+  "main": "fancyplayer.js",
+  "homepage": "http://mephiztopheles.wtf/fancy-player",
+  "author": "Markus Ahrweiler",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mephiztopheles/Fancy.player.git"
+  },
+  "ignore": [
+    "source",
+    "spec",
+    ".bowerrc",
+    ".gitignore",
+    ".jshintignore",
+    ".jshintrc",
+    "bower.json",
+    "gruntfile.js",
+    "package.json",
+    "README.md"
+  ],
+  "keywords": [
+    "fancyplayer",
+    "videoplayer",
+    "videowrapper",
+    "javascript",
+    "browser",
+    "library"
+  ],
+  "bugs": {
+    "url": "https://github.com/Mephiztopheles/Fancy.player/issues"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "jquery": ">=1.9.1",
+    "fancy": ">= 1.0.2"
+  }
+}
