@@ -497,7 +497,7 @@
             } else if ( elem.webkitRequestFullscreen ) {
                 elem.webkitRequestFullscreen();
             }
-            SELF.settings.onFullscreenEnter();
+            this.settings.onFullscreenEnter();
         } else if ( mode === "leave" ) {
             if ( document.exitFullscreen ) {
                 document.exitFullscreen();
@@ -508,7 +508,7 @@
             } else if ( document.webkitExitFullscreen ) {
                 document.webkitExitFullscreen();
             }
-            SELF.settings.onFullscreenLeave();
+            this.settings.onFullscreenLeave();
         } else {
             throw "ERROE: Mode " + mode + " not supported";
         }
