@@ -27,7 +27,7 @@
 
     var i                = 1,
         NAME             = "FancyPlayer",
-        VERSION          = "1.0.4",
+        VERSION          = "1.0.5",
         MutationObserver = MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver,
         logged = false;
 
@@ -497,6 +497,7 @@
             } else if ( elem.webkitRequestFullscreen ) {
                 elem.webkitRequestFullscreen();
             }
+            SELF.settings.onFullscreenEnter();
         } else if ( mode === "leave" ) {
             if ( document.exitFullscreen ) {
                 document.exitFullscreen();
@@ -507,6 +508,7 @@
             } else if ( document.webkitExitFullscreen ) {
                 document.webkitExitFullscreen();
             }
+            SELF.settings.onFullscreenLeave();
         } else {
             throw "ERROE: Mode " + mode + " not supported";
         }
@@ -574,7 +576,9 @@
         hideControlsDesktop: 1500,
         hideControlsMobile : false,
         poster             : false,
-        preload            : false
+        preload            : false,
+        onFullscreenLeave  : function () {},
+        onFullscreenEnter  : function () {}
     };
 
     Fancy.player     = VERSION;
