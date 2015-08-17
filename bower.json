@@ -2,7 +2,7 @@
   "name": "fancy-player",
   "title": "FancyPlayer",
   "description": "JavaScript HTML5-video-player for Fancy",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "main": "fancyplayer.js",
   "homepage": "http://mephiztopheles.wtf/fancy-player",
   "author": "Markus Ahrweiler",
