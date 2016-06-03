@@ -46,7 +46,7 @@
 
     var i                = 1,
         NAME             = "FancyPlayer",
-        VERSION          = "1.0.6",
+        VERSION          = "1.1.0",
         MutationObserver = MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver,
         logged = false;
 
