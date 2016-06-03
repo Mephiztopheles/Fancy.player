@@ -27,7 +27,7 @@
 
     var i                = 1,
         NAME             = "FancyPlayer",
-        VERSION          = "1.0.5",
+        VERSION          = "1.0.6",
         MutationObserver = MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver,
         logged = false;
 
@@ -75,7 +75,7 @@
 
         SELF.settings = $.extend( {}, Fancy.settings [ NAME ], settings );
 
-        SELF.html         = {
+        SELF.html = {
             wrapper                 : addClass( setSelector( $( "<div/>" ) ), "theme-" + SELF.settings.theme ),
             controls                : setSelector( $( "<div/>" ), "controls" ),
             left                    : setSelector( $( "<div/>" ), "controls-left" ),
@@ -108,8 +108,9 @@
         SELF.html.wrapper.append( SELF.html.controls );
         SELF.html.controls.append( SELF.html.left );
         SELF.html.left.append( SELF.html.play );
-        if ( SELF.settings.loopable )
+        if ( SELF.settings.loopable ) {
             SELF.html.left.append( SELF.html.loop );
+        }
         SELF.html.left.append( SELF.html.timeCurrent );
         SELF.html.left.append( SELF.html.timeFull );
         SELF.html.controls.append( SELF.html.timeSlider );
@@ -143,13 +144,13 @@
             SELF.html.timeSliderCurrent.css( 'marginLeft', SELF.settings.start );
             SELF.html.timeSliderBuffer.css( 'marginLeft', SELF.settings.start );
         }
-        SELF.play();
-        if ( !SELF.settings.autoplay ) {
-            SELF.pause();
-        }
+
         preventSelect( SELF.html.wrapper );
         element.data( NAME, SELF );
         SELF.element.load();
+        if ( SELF.settings.autoplay ) {
+            SELF.play();
+        }
 
         if ( SELF.settings.preload ) {
 
@@ -158,7 +159,7 @@
             if ( element.find( "source" ).length ) {
                 el = element.find( "source" )[ 0 ];
             }
-            r.onload       = function () {
+            r.onload = function () {
                 el.src = URL.createObjectURL( r.response );
                 SELF.element.play();
             };
@@ -207,7 +208,7 @@
         return this;
     };
     FancyPlayer.api.seek          = function ( value ) {
-        var SELF              = this;
+        var SELF = this;
         clearTimeout( SELF.timer [ "seek" ] );
         SELF.timer [ "seek" ] = setInterval( function () {
             if ( SELF.element.readyState == 4 ) {
@@ -292,7 +293,7 @@
         } ).on( "play." + NAME, function () {
             addClass( SELF.html.wrapper, "played" );
             removeClass( SELF.html.wrapper, "paused", "ended" );
-            var e                   = {
+            var e = {
                 type  : "FancyPlayer:play",
                 player: SELF.element,
                 api   : SELF,
@@ -307,14 +308,15 @@
         } ).on( "volumechange." + NAME, function () {
             SELF.volume = 100 * SELF.element.volume;
             function set( vol ) {
-                if ( SELF.html.volumeSliderFull.height() > SELF.html.volumeSliderFull.width() )
+                if ( SELF.html.volumeSliderFull.height() > SELF.html.volumeSliderFull.width() ) {
                     SELF.html.volumeSliderCurrent.css( {
                         height: vol + "%"
                     } );
-                else
+                } else {
                     SELF.html.volumeSliderCurrent.css( {
                         width: vol + "%"
                     } );
+                }
             }
 
             //set(SELF.volume);
@@ -410,8 +412,9 @@
                 SELF.html.volumeSlider.show();
                 clearTimeout( SELF.timer [ "volume" ] );
                 SELF.timer [ "volume" ] = setTimeout( function () {
-                    if ( !$( "#" + SELF.html.volume.attr( "id" ) + ":hover" ).length )
+                    if ( !$( "#" + SELF.html.volume.attr( "id" ) + ":hover" ).length ) {
                         SELF.html.volumeSlider.fadeOut();
+                    }
                 }, Fancy.mobile && SELF.settings.hideControlsMobile ? SELF.settings.hideControlsMobile : SELF.settings.hideControlsDesktop );
             } );
 
@@ -529,10 +532,11 @@
         return this;
     };
     FancyPlayer.api.toggleLoop    = function ( bool ) {
-        if ( typeof bool != "undefined" )
+        if ( typeof bool != "undefined" ) {
             this.element.loop = bool ? true : false;
-        else
+        } else {
             this.element.loop = !this.element.loop;
+        }
     };
     FancyPlayer.api.showControls  = function () {
         var SELF      = this;
