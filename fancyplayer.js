@@ -2,7 +2,7 @@
 
     Fancy.require( {
         jQuery: false,
-        Fancy : "1.0.2"
+        Fancy : "1.1.1"
     } );
     function preventSelect( el ) {
         return el.on( "selectstart", false ).attr( 'unselectable', "on" ).css( "userSelect", "none" );
@@ -88,10 +88,6 @@
         SELF.resetting        = false;
         SELF.timer            = [];
 
-        SELF.onEnd    = function () { };
-        SELF.onPlay   = function () { };
-        SELF.onPause  = function () { };
-        SELF.onVolume = function () { };
 
         SELF.settings = $.extend( {}, Fancy.settings [ NAME ], settings );
 
@@ -153,25 +149,17 @@
             Fancy.version( SELF );
         }
         SELF.duration = 0;
-        SELF.volume   = SELF.element.volume;
-        SELF.muted    = SELF.element.muted;
         addClass( SELF.html.wrapper, "volume-" + SELF.settings.volumeStyle );
         SELF.eventListener();
         addClass( SELF.html.wrapper, "paused" );
 
-        if ( SELF.settings.start ) {
-            SELF.seek( SELF.settings.start );
-            SELF.html.timeSliderCurrent.css( 'marginLeft', SELF.settings.start );
-            SELF.html.timeSliderBuffer.css( 'marginLeft', SELF.settings.start );
-        }
 
         preventSelect( SELF.html.wrapper );
         element.data( NAME, SELF );
-        SELF.element.load();
-        if ( SELF.settings.autoplay ) {
-            SELF.play();
+        if ( SELF.element.src ) {
+            SELF.element.load();
+            autoPlay();
         }
-
         if ( SELF.settings.preload ) {
 
             var r  = new XMLHttpRequest;
@@ -204,20 +192,20 @@
             } );
         }
 
-
+        SELF.loadFromLocalStorage();
         return SELF;
     }
 
 
     FancyPlayer.api = FancyPlayer.prototype = {};
-    FancyPlayer.api.version       = VERSION;
-    FancyPlayer.api.name          = NAME;
-    FancyPlayer.api.pause         = function () {
+    FancyPlayer.api.version              = VERSION;
+    FancyPlayer.api.name                 = NAME;
+    FancyPlayer.api.pause                = function () {
         this.element.pause();
         this.showControls();
         return this;
     };
-    FancyPlayer.api.play          = function () {
+    FancyPlayer.api.play                 = function () {
         if ( this.element.ended ) {
             this.reset();
             // this.play();
@@ -227,7 +215,7 @@
         }
         return this;
     };
-    FancyPlayer.api.seek          = function ( value ) {
+    FancyPlayer.api.seek                 = function ( value ) {
         var SELF = this;
         if ( SELF.element.readyState == 4 ) {
             SELF.element.currentTime = value;
@@ -236,7 +224,7 @@
         }
         return SELF;
     };
-    FancyPlayer.api.update        = function () {
+    FancyPlayer.api.update               = function () {
         var SELF         = this;
         SELF.currentTime = SELF.element.currentTime;
         SELF.duration    = SELF.element.duration || 0;
@@ -244,7 +232,7 @@
         SELF.html.timeSliderCurrent.stop( true ).width( ( ( SELF.currentTime - SELF.settings.start ) / SELF.duration * 100 ) + "%" );
         return this;
     };
-    FancyPlayer.api.toggle        = function () {
+    FancyPlayer.api.toggle               = function () {
         var SELF = this;
         if ( SELF.element.paused ) {
             SELF.play();
@@ -253,7 +241,7 @@
         }
         return this;
     };
-    FancyPlayer.api.eventListener = function () {
+    FancyPlayer.api.eventListener        = function () {
         var SELF = this;
         SELF.html.play.on( "click", function () {
             SELF.toggle();
@@ -269,7 +257,7 @@
                 id    : SELF.id
             };
             globalEvent( e );
-            SELF.onEnd();
+            SELF.settings.onEnd.apply( SELF );
         } ).on( "pause." + NAME, function () {
             SELF.update( true );
             addClass( SELF.html.wrapper, "paused" );
@@ -281,7 +269,7 @@
                 id    : SELF.id
             } );
             globalEvent( e );
-            SELF.onPause();
+            SELF.settings.onPause.apply( SELF );
         } ).on( "play." + NAME, function () {
             var e = {
                 type  : "FancyPlayer:play",
@@ -290,7 +278,7 @@
                 id    : SELF.id
             };
             globalEvent( e );
-            SELF.onPlay();
+            SELF.settings.onPlay.apply( SELF );
         } ).on( "volumechange." + NAME, function () {
             SELF.volume = 100 * SELF.element.volume;
             function set( vol ) {
@@ -320,7 +308,7 @@
                 id    : SELF.id
             };
             globalEvent( e );
-            SELF.onVolume();
+            SELF.settings.onVolume.apply( SELF );
         } ).on( "contextmenu." + NAME, function ( e ) {
             e.preventDefault();
             return false;
@@ -347,10 +335,19 @@
             }
             updateBuffer( SELF );
         } ).on( "canplay." + NAME, function () {
+
+            if ( SELF.settings.start ) {
+                SELF.seek( SELF.settings.start );
+                SELF.html.timeSliderCurrent.css( 'marginLeft', SELF.settings.start );
+                SELF.html.timeSliderBuffer.css( 'marginLeft', SELF.settings.start );
+            }
             if ( SELF.resetting ) {
                 SELF.play();
                 SELF.resetting = false;
+            } else if ( SELF.settings.autoplay ) {
+                SELF.play();
             }
+
             $( this ).removeAttr( "poster" );
             SELF.update();
             updateBuffer( SELF );
@@ -439,7 +436,6 @@
                     SELF.seek( SELF.element.duration * m / 100 );
                     SELF.update( true );
                 }
-
             } );
 
             if ( Fancy.mobile ) {
@@ -485,7 +481,7 @@
 
         return this;
     };
-    FancyPlayer.api.fullscreen    = function ( mode ) {
+    FancyPlayer.api.fullscreen           = function ( mode ) {
         if ( !mode || mode === "toggle" ) {
             if ( !document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement ) {
                 mode = "enter";
@@ -504,7 +500,7 @@
             } else if ( elem.webkitRequestFullscreen ) {
                 elem.webkitRequestFullscreen();
             }
-            this.settings.onFullscreenEnter();
+            this.settings.onFullscreenEnter.apply( this );
         } else if ( mode === "leave" ) {
             if ( document.exitFullscreen ) {
                 document.exitFullscreen();
@@ -515,34 +511,36 @@
             } else if ( document.webkitExitFullscreen ) {
                 document.webkitExitFullscreen();
             }
-            this.settings.onFullscreenLeave();
+            this.settings.onFullscreenLeave.apply( this );
         } else {
             throw "ERROE: Mode " + mode + " not supported";
         }
         return this;
 
     };
-    FancyPlayer.api.setVolume     = function ( value ) {
+    FancyPlayer.api.setVolume            = function ( value ) {
         if ( typeof value == "number" ) {
             this.element.muted  = false;
             this.element.volume = value / 100;
+            this.volume         = value;
+            this.saveToLocalStorage();
         }
         return this;
     };
-    FancyPlayer.api.reset         = function () {
+    FancyPlayer.api.reset                = function () {
         this.resetting = true;
         this.seek( this.settings.start );
         this.html.timeSliderCurrent.width( 0 );
         return this;
     };
-    FancyPlayer.api.toggleLoop    = function ( bool ) {
+    FancyPlayer.api.toggleLoop           = function ( bool ) {
         if ( typeof bool != "undefined" ) {
             this.element.loop = bool ? true : false;
         } else {
             this.element.loop = !this.element.loop;
         }
     };
-    FancyPlayer.api.showControls  = function () {
+    FancyPlayer.api.showControls         = function () {
         var SELF      = this;
         SELF.controls = true;
         addClass( SELF.html.wrapper, "controls-show" );
@@ -557,22 +555,32 @@
             }, Fancy.mobile && SELF.settings.hideControlsMobile ? SELF.settings.hideControlsMobile : SELF.settings.hideControlsDesktop );
         }
     };
-    FancyPlayer.api.hideControls  = function () {
+    FancyPlayer.api.hideControls         = function () {
         this.controls = false;
         removeClass( this.html.wrapper, "controls-show" );
     };
-    FancyPlayer.api.calcTime      = function ( e ) {
+    FancyPlayer.api.calcTime             = function ( e ) {
         return ( this.element.duration * ( e.clientX - this.html.timeSlider.offset().left) || 0 ) / this.html.timeSlider.width();
     };
-    FancyPlayer.api.getTime       = function ( e ) {
+    FancyPlayer.api.getTime              = function ( e ) {
         return calcTime( this.calcTime( e ) );
     };
-    FancyPlayer.api.destroy       = function () {
+    FancyPlayer.api.destroy              = function () {
         $( document ).off( "." + NAME + "-" + this.id );
         var $el = $( this.element );
         $el.off( "." + NAME );
         $el.parent().children().not( this.element ).remove();
         $el.unwrap();
+    };
+    FancyPlayer.api.saveToLocalStorage   = function () {
+        localStorage.FancyPlayer = JSON.stringify( { volume: this.volume } );
+        return this;
+    };
+    FancyPlayer.api.loadFromLocalStorage = function () {
+        var settings = $.extend( { volume: 100 }, localStorage.FancyPlayer ? JSON.parse( localStorage.FancyPlayer ) : {} );
+        this.setVolume( settings.volume );
+        $( this.element ).trigger( "volumechange" );
+        return this;
     };
 
     Fancy.settings [ NAME ] = {
@@ -586,7 +594,11 @@
         poster             : false,
         preload            : false,
         onFullscreenLeave  : function () {},
-        onFullscreenEnter  : function () {}
+        onFullscreenEnter  : function () {},
+        onEnd              : function () {},
+        onPlay             : function () {},
+        onPause            : function () {},
+        onVolume           : function () {}
     };
 
     Fancy.player     = VERSION;
